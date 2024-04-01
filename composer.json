@@ -1,0 +1,35 @@
+{
+    "name": "schrammel-codes/magento2-epc-qr-code",
+    "description": "This modules enables merchants to provide an EPC QR code for banktransfer payments to customers",
+    "type": "magento2-module",
+    "license": [
+        "MIT"
+    ],
+    "version": "1.0.0",
+    "require": {
+        "php": "^8.1",
+        "magento/framework": "^103",
+        "smhg/sepa-qr-data": "^2",
+        "apirone/php-qr-code": "^1"
+    },
+    "authors": [
+        {
+            "name": "Dipl.-Ing. Andreas Schrammel, BSc.",
+            "email": "andreas@schrammel.codes",
+            "role": "lead"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/schrammel-codes/magento2-epc-qr-code",
+        "issues": "https://github.com/schrammel-codes/magento2-epc-qr-code/issues"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "SchrammelCodes\\EpcQrCode\\": ""
+        }
+    }
+}
+

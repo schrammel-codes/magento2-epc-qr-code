@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <banktransfer>
+                <epc_qr_enable>0</epc_qr_enable>
+                <epc_qr_reference_type>PR</epc_qr_reference_type>
+                <epc_qr_char_encoding>1</epc_qr_char_encoding>
+                <epc_qr_code_color>#000000</epc_qr_code_color>
+                <epc_qr_be_color>#FFFFFF</epc_qr_be_color>
+            </banktransfer>
+        </payment>
+    </default>
+</config>

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="banktransfer">
+                <field id="epc_qr_enable" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enable EPC QR Code</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="epc_qr_name" translate="label" type="text" sortOrder="111" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Beneficiary Name</label>
+                    <validate>required-entry validate-length maximum-length-70</validate>
+                    <comment>Maximum 70 characters.</comment>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_iban" translate="label" type="text" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>IBAN</label>
+                    <backend_model>SchrammelCodes\EpcQrCode\Model\Config\Backend\Iban</backend_model>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_bic" translate="label" type="text" sortOrder="113" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>BIC</label>
+                    <validate>validate-length maximum-length-11</validate>
+                    <comment><![CDATA[<i>Optional</i> for payments within EEA countries.]]></comment>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_reference_type" translate="label" type="select" sortOrder="114" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Payment Reference Type</label>
+                    <source_model>SchrammelCodes\EpcQrCode\Model\Config\Source\PaymentReferenceType</source_model>
+                    <tooltip><![CDATA[<p>Type of encoded payment reference</p><p><ul><li><b>Payment Reference:</b> A free text payment reference with up to 140 characters. Order increment ID, first and last name of the customer can be given as placeholders.<br/><i>If the resulting payment reference exceeds 140 characters, the QR code can't be rendered.</i></li><li><b>Creditor Reference:</b> A structured creditor reference with up to 35 characters. The <i>order increment ID</i> is used as a reference.<br/><i>If the order increment ID exceeds 35 characters, the QR code can't be rendered.</i></li></ul></p>]]></tooltip>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_payment_reference" translate="label" type="text" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment Reference</label>
+                    <validate>required-entry validate-length maximum-length-140</validate>
+                    <comment><![CDATA[Unstructured payment reference. Maximum 140 characters.<br/>Allowed placeholder: <i>%orderNumber%</i>, <i>%firstName%</i>, <i>%lastName%</i><br />If resulting payment reference after replacement exceeds 140 characters, QR code can't be rendered!]]></comment>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                        <field id="epc_qr_reference_type">PR</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_customer_hint" translate="label" type="text" sortOrder="116" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Hint</label>
+                    <validate>validate-length maximum-length-70</validate>
+                    <comment><![CDATA[<i>Optional</i> information for the customer. Maximum 70 characters.]]></comment>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_char_encoding" translate="label" type="select" sortOrder="117" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Character Encoding</label>
+                    <comment>Used character encoding for the QR code.</comment>
+                    <source_model>SchrammelCodes\EpcQrCode\Model\Config\Source\CharacterEncoding</source_model>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_code_color" translate="label" type="text" sortOrder="118" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>QR code color</label>
+                    <comment>HEX code (#RRGGBB) of the color the code should have (defaults to black).</comment>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+                <field id="epc_qr_be_color" translate="label" type="text" sortOrder="118" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>QR code background color</label>
+                    <comment>HEX code (#RRGGBB) of the color the background should have (defaults to white).</comment>
+                    <depends>
+                        <field id="epc_qr_enable">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
