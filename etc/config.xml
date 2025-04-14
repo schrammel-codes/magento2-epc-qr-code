@@ -4,6 +4,7 @@
         <payment>
             <banktransfer>
                 <epc_qr_enable>0</epc_qr_enable>
+                <epc_qr_base64_source>0</epc_qr_base64_source>
                 <epc_qr_reference_type>PR</epc_qr_reference_type>
                 <epc_qr_char_encoding>1</epc_qr_char_encoding>
                 <epc_qr_code_color>#000000</epc_qr_code_color>
