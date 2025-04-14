@@ -7,6 +7,7 @@ namespace SchrammelCodes\EpcQrCode\Model;
 use Apirone\Lib\PhpQRCode\QRCode;
 use Exception;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Psr\Log\LoggerInterface;
 use SchrammelCodes\EpcQrCode\Exception\EpcQrCodeException;
@@ -24,6 +25,7 @@ class QrCodeRenderer
 
     public function __construct(
         private readonly Reader $configReader,
+        private readonly UrlInterface $url,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -49,7 +51,70 @@ class QrCodeRenderer
         return false;
     }
 
+    /**
+     * Return QR code image as base64 encoded string or null on failure.
+     *
+     * @param OrderInterface $order
+     * @return string|null
+     */
     public function getBase64EncodedQrCode(OrderInterface $order): ?string
+    {
+       $preparedData = $this->prepareImageData($order);
+
+       if ($preparedData === null) {
+           return null;
+       }
+
+       [$data, $qrCodeOptions] = $preparedData;
+
+        return QrCode::png($data, $qrCodeOptions);
+    }
+
+    /**
+     * Return raw QR code image data or null on failure.
+     *
+     * @param OrderInterface $order
+     * @return string|null
+     */
+    public function getRawPngQrCode(OrderInterface $order): ?string
+    {
+        $preparedData = $this->prepareImageData($order);
+
+        if ($preparedData === null) {
+            return null;
+        }
+
+        [$data, $qrCodeOptions] = $preparedData;
+
+        return (QrCode::init($data, $qrCodeOptions))->raw();
+    }
+
+    /**
+     * Return the QR code image tag or null on failure.
+     *
+     * @param OrderInterface $order
+     * @return string|null
+     */
+    public function renderQrCodeImageTag(OrderInterface $order): ?string
+    {
+        $src = $this->configReader->isEpcQrCodeImageSrcBase64Encoded() ?
+            $this->getBase64EncodedQrCode($order) :
+            $this->url->getBaseUrl() . sprintf('epc-qr-code/image/png/order_id/%s', $order->getId());
+
+        if ($src === null) {
+            return null;
+        }
+
+        return '<img class="epc-qr-code" src="' . $src . '" />';
+    }
+
+    /**
+     * Prepare necessary data to render the QR code.
+     *
+     * @param OrderInterface $order
+     * @return array|null
+     */
+    private function prepareImageData(OrderInterface $order): ?array
     {
         try {
             if (!$this->canRender($order)) {
@@ -74,24 +139,7 @@ class QrCodeRenderer
             $this->logger->warning('EPC QR code color configuration not found. Using default colors.');
         }
 
-        return QrCode::png($data, $qrCodeOptions);
-    }
-
-    /**
-     * Return the QR code image tag or null on failure.
-     *
-     * @param OrderInterface $order
-     * @return string|null
-     */
-    public function renderQrCodeImageTag(OrderInterface $order): ?string
-    {
-        $base64EncodedQrCode = $this->getBase64EncodedQrCode($order);
-
-        if ($base64EncodedQrCode === null) {
-            return null;
-        }
-
-        return '<img class="epc-qr-code" src="' . $base64EncodedQrCode . '" />';
+        return [$data, $qrCodeOptions];
     }
 
     /**

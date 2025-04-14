@@ -36,11 +36,15 @@ bin/magento module:enable SchrammelCodes_EpcQrCode
 bin/magento setup:upgrade
 ```
 
-## 🛠️ Configration
+## 🛠️ Configuration
 This module adds additional configurations to the `Banktransfer` payment method in
 `Stores > Configuration > Sales > Payment Methods > Bank Transfer Payment`.
 
 ![Configuration options](./docs/configuration.png "Configuration options")
+
+`Render QR code as Base64 encoded value` has to be used with caution. It is recommended to use this option only, if it's
+that your customers don't get a QR code rendered in Gmail clients, as the most widely used email client [not supporting
+`base64` encoded images](https://www.caniemail.com/features/image-base64/) as image source.
 
 > When using colors for your QR code, make sure it is easy to scan. Some color combinations might make it hard to
 impossible for the banking apps to process the QR code.

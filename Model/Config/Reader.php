@@ -43,6 +43,15 @@ class Reader
         );
     }
 
+    public function isEpcQrCodeImageSrcBase64Encoded(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            $this->getConfigPath('base64_source'),
+            ScopeInterface::SCOPE_STORE,
+            $storeId ?? (int)$this->storeManager->getStore()->getId()
+        );
+    }
+
     /**
      * Return name of the beneficiary.
      *
@@ -125,7 +134,6 @@ class Reader
             $storeId ?? (int)$this->storeManager->getStore()->getId()
         );
     }
-
 
     /**
      * Return customer hint.
