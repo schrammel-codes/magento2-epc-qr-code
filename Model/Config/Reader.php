@@ -84,6 +84,10 @@ class Reader
             $storeId ?? (int)$this->storeManager->getStore()->getId()
         );
 
+        if (empty($iban)) {
+            EpcQrCodeException::configException(__('IBAN is needed but not configured.'));
+        }
+
         return $this->ibanNormalizer->normalize($iban);
     }
 
