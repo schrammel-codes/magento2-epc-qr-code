@@ -3,7 +3,7 @@ name: Unit Tests
 on:
   pull_request:
     branches:
-      - main
+      - develop-2.x
       - 'release-*'
 
 jobs:
@@ -18,18 +18,22 @@ jobs:
           - magento-version: "2.4.6"
             magento-framework: "103.0.6"
             php-version: "8.1"
+            coverage: false
 
           - magento-version: "2.4.7"
             magento-framework: "103.0.7"
             php-version: "8.2"
+            coverage: false
 
           - magento-version: "2.4.8"
             magento-framework: "103.0.8"
             php-version: "8.3"
+            coverage: false
 
           - magento-version: "2.4.9"
             magento-framework: "103.0.9"
             php-version: "8.4"
+            coverage: true
 
     steps:
       - name: Checkout
@@ -40,7 +44,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           extensions: mbstring, intl, dom, simplexml
-          coverage: none
+          coverage: ${{ matrix.coverage && 'pcov' || 'none' }}
 
       - name: Configure Magento credentials
         run: composer config http-basic.repo.magento.com ${{ secrets.MAGENTO_REPO_PUBLIC_KEY }} ${{ secrets.MAGENTO_REPO_PRIVATE_KEY }}
@@ -58,4 +62,23 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run PHPUnit
-        run: vendor/bin/phpunit --testdox
+        run: >-
+          vendor/bin/phpunit --testdox
+          ${{ matrix.coverage && '--coverage-clover coverage.xml --log-junit junit.xml' || '' }}
+
+      - name: Upload coverage to Codecov
+        if: matrix.coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          fail_ci_if_error: true
+
+      - name: Upload test results to Codecov
+        if: matrix.coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: junit.xml
+          report_type: test_results
+          fail_ci_if_error: true

@@ -7,6 +7,7 @@
     <a href="https://packagist.org/packages/schrammel-codes/magento2-epc-qr-code" target="_blank"><img src="https://poser.pugx.org/schrammel-codes/magento2-epc-qr-code/downloads" alt="Composer Downloads" /></a>
     <a href="https://github.com/schrammel-codes/magento2-epc-qr-code/graphs/commit-activity" target="_blank"><img src="https://img.shields.io/badge/maintained%3F-yes-brightgreen.svg?style=flat-square" alt="Maintained - Yes" /></a>
     <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License - MIT"/></a>
+    <a href="https://codecov.io/gh/schrammel-codes/magento2-epc-qr-code" target="_blank"><img src="https://codecov.io/gh/schrammel-codes/magento2-epc-qr-code/graph/badge.svg" alt="Code Coverage"/></a>
 </div>
 
 ## Table of contents
