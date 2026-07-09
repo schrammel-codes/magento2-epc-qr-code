@@ -1,0 +1,61 @@
+name: Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'release-*'
+
+jobs:
+  phpunit:
+    name: "Magento ${{ matrix.magento-version }} / PHP ${{ matrix.php-version }}"
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - magento-version: "2.4.6"
+            magento-framework: "103.0.6"
+            php-version: "8.1"
+
+          - magento-version: "2.4.7"
+            magento-framework: "103.0.7"
+            php-version: "8.2"
+
+          - magento-version: "2.4.8"
+            magento-framework: "103.0.8"
+            php-version: "8.3"
+
+          - magento-version: "2.4.9"
+            magento-framework: "103.0.9"
+            php-version: "8.4"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, dom, simplexml
+          coverage: none
+
+      - name: Configure Magento credentials
+        run: composer config http-basic.repo.magento.com ${{ secrets.MAGENTO_REPO_PUBLIC_KEY }} ${{ secrets.MAGENTO_REPO_PRIVATE_KEY }}
+
+      - name: Validate composer.json
+        run: composer validate
+
+      - name: Pin magento/framework version
+        run: |
+          composer require \
+            --no-update \
+            "magento/framework:${{ matrix.magento-framework }}"
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --testdox
