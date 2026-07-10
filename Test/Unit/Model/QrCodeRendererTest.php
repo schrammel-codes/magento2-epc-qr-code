@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SchrammelCodes\EpcQrCode\Test\Unit\Model;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -200,6 +201,24 @@ class QrCodeRendererTest extends TestCase
                 'expected' => false,
             ],
         ];
+    }
+
+    public function testCanRenderReturnsFalseAndLogsWhenNoSuchEntityExceptionIsThrown(): void
+    {
+        $configReader = $this->createMock(Reader::class);
+        $configReader->method('isEpcQrCodeEnabled')->willThrowException(new NoSuchEntityException());
+
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects($this->once())->method('error');
+
+        $renderer = new QrCodeRenderer(
+            $configReader,
+            $this->createMock(UrlInterface::class),
+            $loggerMock,
+            $this->createMock(UrlHasher::class)
+        );
+
+        $this->assertFalse($renderer->canRender($this->getOrderMock(100.00)));
     }
 
     private function getConfigurationReaderMock(

@@ -13,8 +13,11 @@
             <directory>.</directory>
         </include>
         <exclude>
+            <directory>bin</directory>
+            <directory>generated</directory>
             <directory>Test</directory>
             <directory>vendor</directory>
+            <file>registration.php</file>
         </exclude>
     </source>
 </phpunit>

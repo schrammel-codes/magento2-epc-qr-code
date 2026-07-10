@@ -61,6 +61,9 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
+      - name: Generate Magento factory classes
+        run: composer generate
+
       - name: Run PHPUnit
         run: >-
           vendor/bin/phpunit --testdox
