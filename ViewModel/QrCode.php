@@ -13,6 +13,7 @@ use SchrammelCodes\EpcQrCode\Model\QrCodeRenderer;
 
 /**
  * @package SchrammelCodes\EpcQrCode\ViewModel
+ * @codeCoverageIgnore
  */
 class QrCode implements ArgumentInterface
 {

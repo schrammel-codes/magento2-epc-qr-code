@@ -33,6 +33,7 @@ class Reader
      * @param int|null $storeId
      * @return bool
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function isEpcQrCodeEnabled(?int $storeId = null): bool
     {
@@ -43,6 +44,13 @@ class Reader
         );
     }
 
+    /**
+     * Return if QR code image should be base64 encoded.
+     * @param int|null $storeId
+     * @return bool
+     * @throws NoSuchEntityException
+     * @codeCoverageIgnore
+     */
     public function isEpcQrCodeImageSrcBase64Encoded(?int $storeId = null): bool
     {
         return $this->scopeConfig->isSetFlag(
@@ -58,6 +66,7 @@ class Reader
      * @param int|null $storeId
      * @return string|null
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getBeneficiaryName(?int $storeId = null): ?string
     {
@@ -97,6 +106,7 @@ class Reader
      * @param int|null $storeId
      * @return string|null
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getBic(?int $storeId = null): ?string
     {
@@ -113,6 +123,7 @@ class Reader
      * @param int|null $storeId
      * @return string|null
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getReferenceType(?int $storeId = null): ?string
     {
@@ -129,6 +140,7 @@ class Reader
      * @param int|null $storeId
      * @return string|null
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getPaymentReference(?int $storeId = null): ?string
     {
@@ -145,6 +157,7 @@ class Reader
      * @param int|null $storeId
      * @return string|null
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getCustomerHint(?int $storeId = null): ?string
     {
@@ -161,6 +174,7 @@ class Reader
      * @param int|null $storeId
      * @return int
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getCharEncoding(?int $storeId = null): int
     {
@@ -177,6 +191,7 @@ class Reader
      * @param int|null $storeId
      * @return string|null
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getCodeColor(?int $storeId = null): ?string
     {
@@ -193,6 +208,7 @@ class Reader
      * @param int|null $storeId
      * @return string|null
      * @throws NoSuchEntityException
+     * @codeCoverageIgnore
      */
     public function getCodeBeColor(?int $storeId = null): ?string
     {
