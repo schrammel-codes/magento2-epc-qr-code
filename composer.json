@@ -5,7 +5,7 @@
     "license": [
         "MIT"
     ],
-    "version": "2.1.0",
+    "version": "2.2.0",
     "require": {
         "php": "^8.1",
         "magento/framework": "^103",
