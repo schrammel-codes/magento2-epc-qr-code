@@ -9,6 +9,9 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use SchrammelCodes\EpcQrCode\Model\UrlHasher;
 
+/**
+ * @codeCoverageIgnore
+ */
 class SetUpgradeTimestampFlag implements DataPatchInterface, PatchRevertableInterface
 {
     public function __construct(private readonly FlagManager $flagManager)

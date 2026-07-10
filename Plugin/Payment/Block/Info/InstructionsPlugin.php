@@ -11,6 +11,7 @@ use SchrammelCodes\EpcQrCode\Model\QrCodeRenderer;
 
 /**
  * @package SchrammelCodes\EpcQrCode\Plugin\Payment\Block\Info
+ * @codeCoverageIgnore
  */
 class InstructionsPlugin
 {

@@ -1,1 +1,4 @@
+.phpunit.result.cache
+vendor/
+generated/
 Test/Unit/Model/var

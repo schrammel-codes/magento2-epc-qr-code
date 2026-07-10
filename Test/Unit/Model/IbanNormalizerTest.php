@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace SchrammelCodes\EpcQrCode\Test\Unit\Model;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use SchrammelCodes\EpcQrCode\Exception\EpcQrCodeException;
 use SchrammelCodes\EpcQrCode\Model\IbanNormalizer;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @package SchrammelCodes\EpcQrCode\Test\Unit\Model
  */
 class IbanNormalizerTest extends TestCase
 {
-    /**
-     * @param string $iban
-     * @param string $expected
-     * @return void
-     * @throws EpcQrCodeException
-     * @dataProvider successfulValidationDataProvider
-     */
+    #[DataProvider('successfulValidationDataProvider')]
     public function testNormalizeOnSuccessfulValidation(string $iban, string $expected): void
     {
         $ibanNormalizer = new IbanNormalizer();
@@ -27,7 +22,7 @@ class IbanNormalizerTest extends TestCase
         $this->assertEquals($expected, $ibanNormalizer->normalize($iban));
     }
 
-    private function successfulValidationDataProvider(): array
+    public static function successfulValidationDataProvider(): array
     {
         return [
             ['AT123456789012345678', 'AT123456789012345678'],
@@ -43,13 +38,7 @@ class IbanNormalizerTest extends TestCase
         ];
     }
 
-    /**
-     * @param string $iban
-     * @param string $messageRegex
-     * @return void
-     * @throws EpcQrCodeException
-     * @dataProvider expectedExceptionDataProvider
-     */
+    #[DataProvider('expectedExceptionDataProvider')]
     public function testExceptionOnInvalidIban(string $iban, string $messageRegex): void
     {
         $ibanNormalizer = new IbanNormalizer();
@@ -60,7 +49,7 @@ class IbanNormalizerTest extends TestCase
         $ibanNormalizer->normalize($iban);
     }
 
-    private function expectedExceptionDataProvider(): array
+    public static function expectedExceptionDataProvider(): array
     {
         return [
             ['AA12345678901234567890', '/IBAN country code "[A-Z]{2}" is invalid./'],

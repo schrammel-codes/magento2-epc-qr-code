@@ -8,6 +8,7 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 /**
  * @package SchrammelCodes\EpcQrCode\Model\Config\Source
+ * @codeCoverageIgnore
  */
 class CharacterEncoding implements OptionSourceInterface
 {

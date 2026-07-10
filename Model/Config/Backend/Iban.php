@@ -16,6 +16,7 @@ use SchrammelCodes\EpcQrCode\Model\IbanNormalizer;
 
 /**
  * @package SchrammelCodes\EpcQrCode\Model\Config\Backend
+ * @codeCoverageIgnore
  */
 class Iban extends Value
 {

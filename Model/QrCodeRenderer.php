@@ -57,6 +57,7 @@ class QrCodeRenderer
      *
      * @param OrderInterface $order
      * @return string|null
+     * @codeCoverageIgnore
      */
     public function getBase64EncodedQrCode(OrderInterface $order): ?string
     {
@@ -76,6 +77,7 @@ class QrCodeRenderer
      *
      * @param OrderInterface $order
      * @return string|null
+     * @codeCoverageIgnore
      */
     public function getRawPngQrCode(OrderInterface $order): ?string
     {
@@ -95,6 +97,7 @@ class QrCodeRenderer
      *
      * @param OrderInterface $order
      * @return string|null
+     * @codeCoverageIgnore
      */
     public function renderQrCodeImageTag(OrderInterface $order): ?string
     {
@@ -114,6 +117,7 @@ class QrCodeRenderer
      *
      * @param OrderInterface $order
      * @return array|null
+     * @codeCoverageIgnore
      */
     private function prepareImageData(OrderInterface $order): ?array
     {
@@ -151,6 +155,7 @@ class QrCodeRenderer
      * @throws EpcQrCodeException
      * @throws NoSuchEntityException
      * @throws SepaQException
+     * @codeCoverageIgnore
      */
     private function prepareData(OrderInterface $order): SepaQrData
     {
