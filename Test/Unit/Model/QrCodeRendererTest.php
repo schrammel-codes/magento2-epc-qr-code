@@ -19,6 +19,9 @@ use SchrammelCodes\EpcQrCode\Model\UrlHasher;
  */
 class QrCodeRendererTest extends TestCase
 {
+    /**
+     * @dataProvider canRenderDataProvider
+     */
     #[DataProvider('canRenderDataProvider')]
     public function testCanRender(
         bool $isEnabled,
