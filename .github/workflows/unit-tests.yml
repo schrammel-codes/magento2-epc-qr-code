@@ -46,8 +46,13 @@ jobs:
           extensions: mbstring, intl, dom, simplexml
           coverage: ${{ matrix.coverage && 'pcov' || 'none' }}
 
-      - name: Configure Magento credentials
-        run: composer config http-basic.repo.magento.com ${{ secrets.MAGENTO_REPO_PUBLIC_KEY }} ${{ secrets.MAGENTO_REPO_PRIVATE_KEY }}
+      # Secrets are not available for pull requests from forks, so the
+      # authenticated repo.magento.com cannot be used. The Mage-OS mirror
+      # provides the same magento/* packages without authentication.
+      - name: Use Mage-OS mirror instead of repo.magento.com
+        run: |
+          jq --indent 4 '.repositories = [{"type": "composer", "url": "https://mirror.mage-os.org/"}]' composer.json > composer.json.tmp
+          mv composer.json.tmp composer.json
 
       - name: Validate composer.json
         run: composer validate
@@ -75,7 +80,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
-          fail_ci_if_error: true
+          fail_ci_if_error: ${{ !github.event.pull_request.head.repo.fork }}
 
       - name: Upload test results to Codecov
         if: matrix.coverage
@@ -84,4 +89,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: junit.xml
           report_type: test_results
-          fail_ci_if_error: true
+          fail_ci_if_error: ${{ !github.event.pull_request.head.repo.fork }}
