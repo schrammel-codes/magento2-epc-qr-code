@@ -22,6 +22,7 @@ use SepaQr\Exception as SepaQException;
 class QrCodeRenderer
 {
     private const ERROR_LOG_PREFIX = 'Error rendering EPC QR code: ';
+    private const SUPPORTED_CURRENCY = 'EUR';
 
     public function __construct(
         private readonly Reader $configReader,
@@ -207,6 +208,18 @@ class QrCodeRenderer
      */
     private function areMandatoryPrerequisitesMet(OrderInterface $order): bool
     {
+        if ($order->getOrderCurrencyCode() !== self::SUPPORTED_CURRENCY) {
+            $this->logger->notice(
+                'Order currency is not supported for EPC QR code.',
+                [
+                    'order_currency' => (string)$order->getOrderCurrencyCode(),
+                    'order_increment_id' => $order->getIncrementId(),
+                ]
+            );
+
+            return false;
+        }
+
         $grandTotal = (float)$order->getGrandTotal();
 
         if ($grandTotal < 0.01 || $grandTotal > 999999999.99) {

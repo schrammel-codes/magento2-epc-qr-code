@@ -221,6 +221,39 @@ class QrCodeRendererTest extends TestCase
         $this->assertFalse($renderer->canRender($this->getOrderMock(100.00)));
     }
 
+    #[DataProvider('orderCurrencyDataProvider')]
+    public function testCanRenderDependsOnOrderCurrency(?string $currencyCode, bool $expected): void
+    {
+        $renderer = new QrCodeRenderer(
+            $this->getConfigurationReaderMock(
+                true,
+                'John Doe',
+                'AT611904300234573201',
+                'ABCDATWW',
+                'CR',
+                null,
+                'Order #12345',
+                1
+            ),
+            $this->createMock(UrlInterface::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(UrlHasher::class)
+        );
+
+        $this->assertSame($expected, $renderer->canRender($this->getOrderMock(100.00, $currencyCode)));
+    }
+
+    public static function orderCurrencyDataProvider(): array
+    {
+        return [
+            'EUR (can render)' => ['EUR', true],
+            'PLN (cannot render)' => ['PLN', false],
+            'CHF (cannot render)' => ['CHF', false],
+            'USD (cannot render)' => ['USD', false],
+            'Missing currency (cannot render)' => [null, false],
+        ];
+    }
+
     private function getConfigurationReaderMock(
         bool $isEnabled,
         ?string $accountHolder,
@@ -248,11 +281,12 @@ class QrCodeRendererTest extends TestCase
         return $configReader;
     }
 
-    private function getOrderMock(float $orderValue): OrderInterface
+    private function getOrderMock(float $orderValue, ?string $currencyCode = 'EUR'): OrderInterface
     {
         $orderMock = $this->createMock(OrderInterface::class);
         $orderMock->method('getStoreId')->willReturn(1);
         $orderMock->method('getGrandTotal')->willReturn($orderValue);
+        $orderMock->method('getOrderCurrencyCode')->willReturn($currencyCode);
         $orderMock->method('getIncrementId')->willReturn('100000001');
 
         return $orderMock;
