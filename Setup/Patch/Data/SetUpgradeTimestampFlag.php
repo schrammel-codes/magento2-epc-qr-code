@@ -24,6 +24,8 @@ class SetUpgradeTimestampFlag implements DataPatchInterface, PatchRevertableInte
     public function apply()
     {
         $this->flagManager->saveFlag(UrlHasher::EPC_QR_CODE_V2_1_UPGRADE_TIMESTAMP_FLAG, time());
+
+        return $this;
     }
 
     /**

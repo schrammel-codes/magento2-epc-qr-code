@@ -14,6 +14,9 @@ use SchrammelCodes\EpcQrCode\Model\IbanNormalizer;
  */
 class IbanNormalizerTest extends TestCase
 {
+    /**
+     * @dataProvider successfulValidationDataProvider
+     */
     #[DataProvider('successfulValidationDataProvider')]
     public function testNormalizeOnSuccessfulValidation(string $iban, string $expected): void
     {
@@ -38,6 +41,9 @@ class IbanNormalizerTest extends TestCase
         ];
     }
 
+    /**
+     * @dataProvider expectedExceptionDataProvider
+     */
     #[DataProvider('expectedExceptionDataProvider')]
     public function testExceptionOnInvalidIban(string $iban, string $messageRegex): void
     {
