@@ -51,6 +51,17 @@ that your customers don't get a QR code rendered in Gmail clients, as the most w
 > When using colors for your QR code, make sure it is easy to scan. Some color combinations might make it hard to
 impossible for the banking apps to process the QR code.
 
+The QR code colors have to be given in the HEX format `#RRGGBB`. Leave them empty to use the default colors (black code
+on white background).
+
+### Configuration per website or store view
+`Beneficiary Name`, `IBAN` and `Payment Reference` (if used as payment reference type) are needed to render the QR code,
+but they can be left empty. This allows enabling the QR code in the default scope and setting the beneficiary details
+per website or store view, e.g. if every country has its own bank account.
+
+For every scope in which one of these values is empty, no QR code is rendered and the reason is logged as an error.
+Optional values like `BIC` and `Customer Hint` don't prevent the QR code from being rendered if left empty.
+
 ## 🗓️ Usage
 As soon as the module is enabled and configured with correct information, the QR code will be rendered below the 
 banktransfer payment instructions in every place they are rendered.

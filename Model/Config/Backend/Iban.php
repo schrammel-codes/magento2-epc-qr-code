@@ -16,7 +16,6 @@ use SchrammelCodes\EpcQrCode\Model\IbanNormalizer;
 
 /**
  * @package SchrammelCodes\EpcQrCode\Model\Config\Backend
- * @codeCoverageIgnore
  */
 class Iban extends Value
 {
@@ -36,12 +35,18 @@ class Iban extends Value
     /**
      * Validate and normalize IBAN before saving.
      *
+     * An empty value is allowed, e.g. to enable the QR code in the default scope and set the IBAN per website or
+     * store view. No QR code is rendered for scopes without IBAN.
+     *
      * @throws EpcQrCodeException
      */
     public function beforeSave(): void
     {
-        $iban = $this->getValue();
-        $this->setValue($this->ibanNormalizer->normalize($iban));
+        $iban = trim((string)$this->getValue());
+        if ($iban !== '') {
+            $iban = $this->ibanNormalizer->normalize($iban);
+        }
+        $this->setValue($iban);
 
         parent::beforeSave();
     }
