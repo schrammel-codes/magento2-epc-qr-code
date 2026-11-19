@@ -216,6 +216,7 @@ class QrCodeRenderer
                     'order_increment_id' => $order->getIncrementId(),
                 ]
             );
+
             return false;
         }
 
