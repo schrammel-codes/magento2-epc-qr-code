@@ -139,8 +139,16 @@ class QrCodeRenderer
 
         $storeId = $order->getStoreId() ? (int)$order->getStoreId() : null;
         try {
-            $qrCodeOptions['fc'] = $this->configReader->getCodeColor($storeId);
-            $qrCodeOptions['bc'] = $this->configReader->getCodeBeColor($storeId);
+            // Only pass configured colors, so the QR code library falls back to its defaults for empty values.
+            $codeColor = $this->configReader->getCodeColor($storeId);
+            if (!empty($codeColor)) {
+                $qrCodeOptions['fc'] = $codeColor;
+            }
+
+            $backgroundColor = $this->configReader->getCodeBeColor($storeId);
+            if (!empty($backgroundColor)) {
+                $qrCodeOptions['bc'] = $backgroundColor;
+            }
         } catch (NoSuchEntityException $e) {
             $this->logger->warning('EPC QR code color configuration not found. Using default colors.');
         }
@@ -187,13 +195,14 @@ class QrCodeRenderer
                 EpcQrCodeException::configException(__('Invalid reference type.'));
         }
 
+        // Optional fields are saved as empty strings if left empty in the default scope.
         $bic = $this->configReader->getBic($storeId);
-        if ($bic !== null) {
+        if (!empty($bic)) {
             $paymentData->setBic($bic);
         }
 
         $customerHint = $this->configReader->getCustomerHint($storeId);
-        if ($customerHint !== null) {
+        if (!empty($customerHint)) {
             $paymentData->setInformation($customerHint);
         }
 
