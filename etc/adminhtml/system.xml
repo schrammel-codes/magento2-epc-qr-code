@@ -14,8 +14,8 @@
                 </field>
                 <field id="epc_qr_name" translate="label" type="text" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Beneficiary Name</label>
-                    <validate>required-entry validate-length maximum-length-70</validate>
-                    <comment>Maximum 70 characters.</comment>
+                    <validate>validate-length maximum-length-70</validate>
+                    <comment><![CDATA[Maximum 70 characters.<br/><i>If left empty, no QR code is rendered. Can be left empty in a parent scope (e.g. default) and set per website or store view.</i>]]></comment>
                     <depends>
                         <field id="epc_qr_enable">1</field>
                     </depends>
@@ -23,6 +23,7 @@
                 <field id="epc_qr_iban" translate="label" type="text" sortOrder="113" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>IBAN</label>
                     <backend_model>SchrammelCodes\EpcQrCode\Model\Config\Backend\Iban</backend_model>
+                    <comment><![CDATA[Whitespaces are removed when saving.<br/><i>If left empty, no QR code is rendered. Can be left empty in a parent scope (e.g. default) and set per website or store view.</i>]]></comment>
                     <depends>
                         <field id="epc_qr_enable">1</field>
                     </depends>
@@ -45,8 +46,8 @@
                 </field>
                 <field id="epc_qr_payment_reference" translate="label" type="text" sortOrder="116" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Payment Reference</label>
-                    <validate>required-entry validate-length maximum-length-140</validate>
-                    <comment><![CDATA[Unstructured payment reference. Maximum 140 characters.<br/>Allowed placeholder: <i>%orderNumber%</i>, <i>%firstName%</i>, <i>%lastName%</i><br />If resulting payment reference after replacement exceeds 140 characters, QR code can't be rendered!]]></comment>
+                    <validate>validate-length maximum-length-140</validate>
+                    <comment><![CDATA[Unstructured payment reference. Maximum 140 characters.<br/>Allowed placeholder: <i>%orderNumber%</i>, <i>%firstName%</i>, <i>%lastName%</i><br />If resulting payment reference after replacement exceeds 140 characters, QR code can't be rendered!<br/><i>If left empty, no QR code is rendered. Can be left empty in a parent scope (e.g. default) and set per website or store view.</i>]]></comment>
                     <depends>
                         <field id="epc_qr_enable">1</field>
                         <field id="epc_qr_reference_type">PR</field>
@@ -70,14 +71,16 @@
                 </field>
                 <field id="epc_qr_code_color" translate="label" type="text" sortOrder="119" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>QR code color</label>
-                    <comment>HEX code (#RRGGBB) of the color the code should have (defaults to black).</comment>
+                    <backend_model>SchrammelCodes\EpcQrCode\Model\Config\Backend\HexColor</backend_model>
+                    <comment>HEX code (#RRGGBB) of the color the code should have. Leave empty to use black.</comment>
                     <depends>
                         <field id="epc_qr_enable">1</field>
                     </depends>
                 </field>
                 <field id="epc_qr_be_color" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                     <label>QR code background color</label>
-                    <comment>HEX code (#RRGGBB) of the color the background should have (defaults to white).</comment>
+                    <backend_model>SchrammelCodes\EpcQrCode\Model\Config\Backend\HexColor</backend_model>
+                    <comment>HEX code (#RRGGBB) of the color the background should have. Leave empty to use white.</comment>
                     <depends>
                         <field id="epc_qr_enable">1</field>
                     </depends>

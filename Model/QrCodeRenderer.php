@@ -22,6 +22,7 @@ use SepaQr\Exception as SepaQException;
 class QrCodeRenderer
 {
     private const ERROR_LOG_PREFIX = 'Error rendering EPC QR code: ';
+    private const SUPPORTED_CURRENCY = 'EUR';
 
     public function __construct(
         private readonly Reader $configReader,
@@ -138,8 +139,16 @@ class QrCodeRenderer
 
         $storeId = $order->getStoreId() ? (int)$order->getStoreId() : null;
         try {
-            $qrCodeOptions['fc'] = $this->configReader->getCodeColor($storeId);
-            $qrCodeOptions['bc'] = $this->configReader->getCodeBeColor($storeId);
+            // Only pass configured colors, so the QR code library falls back to its defaults for empty values.
+            $codeColor = $this->configReader->getCodeColor($storeId);
+            if (!empty($codeColor)) {
+                $qrCodeOptions['fc'] = $codeColor;
+            }
+
+            $backgroundColor = $this->configReader->getCodeBeColor($storeId);
+            if (!empty($backgroundColor)) {
+                $qrCodeOptions['bc'] = $backgroundColor;
+            }
         } catch (NoSuchEntityException $e) {
             $this->logger->warning('EPC QR code color configuration not found. Using default colors.');
         }
@@ -186,13 +195,14 @@ class QrCodeRenderer
                 EpcQrCodeException::configException(__('Invalid reference type.'));
         }
 
+        // Optional fields are saved as empty strings if left empty in the default scope.
         $bic = $this->configReader->getBic($storeId);
-        if ($bic !== null) {
+        if (!empty($bic)) {
             $paymentData->setBic($bic);
         }
 
         $customerHint = $this->configReader->getCustomerHint($storeId);
-        if ($customerHint !== null) {
+        if (!empty($customerHint)) {
             $paymentData->setInformation($customerHint);
         }
 
@@ -207,6 +217,18 @@ class QrCodeRenderer
      */
     private function areMandatoryPrerequisitesMet(OrderInterface $order): bool
     {
+        if ($order->getOrderCurrencyCode() !== self::SUPPORTED_CURRENCY) {
+            $this->logger->notice(
+                'Order currency is not supported for EPC QR code.',
+                [
+                    'order_currency' => (string)$order->getOrderCurrencyCode(),
+                    'order_increment_id' => $order->getIncrementId(),
+                ]
+            );
+
+            return false;
+        }
+
         $grandTotal = (float)$order->getGrandTotal();
 
         if ($grandTotal < 0.01 || $grandTotal > 999999999.99) {
@@ -223,11 +245,14 @@ class QrCodeRenderer
         $storeId = $order->getStoreId() ? (int)$order->getStoreId() : null;
 
         try {
+            if (!$this->configReader->getBeneficiaryName($storeId)) {
+                EpcQrCodeException::configException(__('Beneficiary name is needed but not configured.'));
+            }
+
             $charEncoding = $this->configReader->getCharEncoding($storeId);
             $referenceType = $this->configReader->getReferenceType($storeId);
 
-            $result = $this->configReader->getBeneficiaryName($storeId) &&
-                $this->configReader->getIban($storeId) &&
+            $result = $this->configReader->getIban($storeId) &&
                 $referenceType && in_array($referenceType, PaymentReferenceType::ALLOWED_PAYMENT_REFERENCE_TYPES) &&
                 $charEncoding && in_array($charEncoding, range(1, 8)) &&
                 $this->configReader->getServiceTag() === 'BCD' &&

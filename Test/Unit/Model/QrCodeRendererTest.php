@@ -104,6 +104,18 @@ class QrCodeRendererTest extends TestCase
                 'orderValue' => 100.00,
                 'expected' => false,
             ],
+            'Account holder saved empty (cannot render)' => [
+                'isEnabled' => true,
+                'accountHolder' => '',
+                'iban' => 'AT611904300234573201',
+                'bic' => 'ABCDATWW',
+                'referenceType' => 'CR',
+                'paymentReference' => null,
+                'customerHint' => 'Order #12345',
+                'charEncoding' => 1,
+                'orderValue' => 100.00,
+                'expected' => false,
+            ],
             'Missing IBAN (cannot render)' => [
                 'isEnabled' => true,
                 'accountHolder' => 'John Doe',
@@ -147,6 +159,18 @@ class QrCodeRendererTest extends TestCase
                 'bic' => 'ABCDATWW',
                 'referenceType' => 'PR',
                 'paymentReference' => null,
+                'customerHint' => 'Order #12345',
+                'charEncoding' => 1,
+                'orderValue' => 100.00,
+                'expected' => false,
+            ],
+            'Payment reference saved empty (cannot render)' => [
+                'isEnabled' => true,
+                'accountHolder' => 'John Doe',
+                'iban' => 'AT611904300234573201',
+                'bic' => 'ABCDATWW',
+                'referenceType' => 'PR',
+                'paymentReference' => '',
                 'customerHint' => 'Order #12345',
                 'charEncoding' => 1,
                 'orderValue' => 100.00,
@@ -221,6 +245,192 @@ class QrCodeRendererTest extends TestCase
         $this->assertFalse($renderer->canRender($this->getOrderMock(100.00)));
     }
 
+    #[DataProvider('missingBeneficiaryNameDataProvider')]
+    public function testCanRenderLogsErrorWhenBeneficiaryNameIsMissing(?string $beneficiaryName): void
+    {
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('Beneficiary name is needed but not configured.'));
+
+        $renderer = new QrCodeRenderer(
+            $this->getConfigurationReaderMock(
+                true,
+                $beneficiaryName,
+                'AT611904300234573201',
+                'ABCDATWW',
+                'CR',
+                null,
+                'Order #12345',
+                1
+            ),
+            $this->createMock(UrlInterface::class),
+            $loggerMock,
+            $this->createMock(UrlHasher::class)
+        );
+
+        $this->assertFalse($renderer->canRender($this->getOrderMock(100.00)));
+    }
+
+    public static function missingBeneficiaryNameDataProvider(): array
+    {
+        return [
+            'Beneficiary name not set' => ['beneficiaryName' => null],
+            'Beneficiary name saved empty' => ['beneficiaryName' => ''],
+        ];
+    }
+
+    #[DataProvider('orderCurrencyDataProvider')]
+    public function testCanRenderDependsOnOrderCurrency(?string $currencyCode, bool $expected): void
+    {
+        $renderer = new QrCodeRenderer(
+            $this->getConfigurationReaderMock(
+                true,
+                'John Doe',
+                'AT611904300234573201',
+                'ABCDATWW',
+                'CR',
+                null,
+                'Order #12345',
+                1
+            ),
+            $this->createMock(UrlInterface::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(UrlHasher::class)
+        );
+
+        $this->assertSame($expected, $renderer->canRender($this->getOrderMock(100.00, $currencyCode)));
+    }
+
+    public static function orderCurrencyDataProvider(): array
+    {
+        return [
+            'EUR (can render)' => ['EUR', true],
+            'PLN (cannot render)' => ['PLN', false],
+            'CHF (cannot render)' => ['CHF', false],
+            'USD (cannot render)' => ['USD', false],
+            'Missing currency (cannot render)' => [null, false],
+        ];
+    }
+
+    #[DataProvider('optionalFieldsDataProvider')]
+    public function testRendersQrCodeWithEmptyOptionalFields(?string $bic, ?string $customerHint): void
+    {
+        $configReader = $this->getConfigurationReaderMock(
+            true,
+            'John Doe',
+            'AT611904300234573201',
+            $bic,
+            'CR',
+            null,
+            $customerHint,
+            1
+        );
+
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects($this->never())->method('error');
+
+        $renderer = new QrCodeRenderer(
+            $configReader,
+            $this->createMock(UrlInterface::class),
+            $loggerMock,
+            $this->createMock(UrlHasher::class)
+        );
+
+        $this->assertNotNull($renderer->getRawPngQrCode($this->getOrderMock(100.00)));
+    }
+
+    public static function optionalFieldsDataProvider(): array
+    {
+        return [
+            'BIC and customer hint not set' => ['bic' => null, 'customerHint' => null],
+            'BIC and customer hint saved empty' => ['bic' => '', 'customerHint' => ''],
+            'BIC saved empty, customer hint set' => ['bic' => '', 'customerHint' => 'Thank you'],
+            'BIC set, customer hint saved empty' => ['bic' => 'ABCDATWW', 'customerHint' => ''],
+        ];
+    }
+
+    #[DataProvider('colorDataProvider')]
+    public function testQrCodeColors(
+        ?string $codeColor,
+        ?string $backgroundColor,
+        string $expectedCodeColor,
+        string $expectedBackgroundColor
+    ): void {
+        $configReader = $this->getConfigurationReaderMock(
+            true,
+            'John Doe',
+            'AT611904300234573201',
+            'ABCDATWW',
+            'CR',
+            null,
+            null,
+            1
+        );
+        $configReader->method('getCodeColor')->willReturn($codeColor);
+        $configReader->method('getCodeBeColor')->willReturn($backgroundColor);
+
+        $renderer = new QrCodeRenderer(
+            $configReader,
+            $this->createMock(UrlInterface::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(UrlHasher::class)
+        );
+
+        $png = $renderer->getRawPngQrCode($this->getOrderMock(100.00));
+        $this->assertNotNull($png);
+
+        $image = imagecreatefromstring($png);
+        $colorAt = static fn (int $position): string => sprintf('#%06X', imagecolorat($image, $position, $position));
+
+        // The image is surrounded by a quiet zone, so the top left corner is always rendered in the background color.
+        $this->assertSame($expectedBackgroundColor, $colorAt(0));
+
+        // The code starts with the top left finder pattern, whose corner module is always dark. Walking the diagonal,
+        // the first pixel not in the background color therefore has to be rendered in the code color.
+        $position = 0;
+        while ($position < imagesx($image) - 1 && $colorAt($position) === $expectedBackgroundColor) {
+            $position++;
+        }
+        $this->assertSame($expectedCodeColor, $colorAt($position));
+    }
+
+    public static function colorDataProvider(): array
+    {
+        return [
+            'Colors not set (default colors)' => [
+                'codeColor' => null,
+                'backgroundColor' => null,
+                'expectedCodeColor' => '#000000',
+                'expectedBackgroundColor' => '#FFFFFF',
+            ],
+            'Colors saved empty (default colors)' => [
+                'codeColor' => '',
+                'backgroundColor' => '',
+                'expectedCodeColor' => '#000000',
+                'expectedBackgroundColor' => '#FFFFFF',
+            ],
+            'Configured colors' => [
+                'codeColor' => '#000080',
+                'backgroundColor' => '#FFFF00',
+                'expectedCodeColor' => '#000080',
+                'expectedBackgroundColor' => '#FFFF00',
+            ],
+            'Code color configured, background color saved empty' => [
+                'codeColor' => '#000080',
+                'backgroundColor' => '',
+                'expectedCodeColor' => '#000080',
+                'expectedBackgroundColor' => '#FFFFFF',
+            ],
+            'Code color saved empty, background color configured' => [
+                'codeColor' => '',
+                'backgroundColor' => '#FFFF00',
+                'expectedCodeColor' => '#000000',
+                'expectedBackgroundColor' => '#FFFF00',
+            ],
+        ];
+    }
+
     private function getConfigurationReaderMock(
         bool $isEnabled,
         ?string $accountHolder,
@@ -239,7 +449,6 @@ class QrCodeRendererTest extends TestCase
         $configReader->method('getReferenceType')->willReturn($referenceType);
         $configReader->method('getPaymentReference')->willReturn($reference);
         $configReader->method('getCustomerHint')->willReturn($customerHint);
-        ;
         $configReader->method('getCharEncoding')->willReturn($charEncoding);
         $configReader->method('getServiceTag')->willReturn('BCD');
         $configReader->method('getVersion')->willReturn(002);
@@ -248,11 +457,12 @@ class QrCodeRendererTest extends TestCase
         return $configReader;
     }
 
-    private function getOrderMock(float $orderValue): OrderInterface
+    private function getOrderMock(float $orderValue, ?string $currencyCode = 'EUR'): OrderInterface
     {
         $orderMock = $this->createMock(OrderInterface::class);
         $orderMock->method('getStoreId')->willReturn(1);
         $orderMock->method('getGrandTotal')->willReturn($orderValue);
+        $orderMock->method('getOrderCurrencyCode')->willReturn($currencyCode);
         $orderMock->method('getIncrementId')->willReturn('100000001');
 
         return $orderMock;
