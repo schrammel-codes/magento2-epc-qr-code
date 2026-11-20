@@ -245,6 +245,41 @@ class QrCodeRendererTest extends TestCase
         $this->assertFalse($renderer->canRender($this->getOrderMock(100.00)));
     }
 
+    #[DataProvider('missingBeneficiaryNameDataProvider')]
+    public function testCanRenderLogsErrorWhenBeneficiaryNameIsMissing(?string $beneficiaryName): void
+    {
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('Beneficiary name is needed but not configured.'));
+
+        $renderer = new QrCodeRenderer(
+            $this->getConfigurationReaderMock(
+                true,
+                $beneficiaryName,
+                'AT611904300234573201',
+                'ABCDATWW',
+                'CR',
+                null,
+                'Order #12345',
+                1
+            ),
+            $this->createMock(UrlInterface::class),
+            $loggerMock,
+            $this->createMock(UrlHasher::class)
+        );
+
+        $this->assertFalse($renderer->canRender($this->getOrderMock(100.00)));
+    }
+
+    public static function missingBeneficiaryNameDataProvider(): array
+    {
+        return [
+            'Beneficiary name not set' => ['beneficiaryName' => null],
+            'Beneficiary name saved empty' => ['beneficiaryName' => ''],
+        ];
+    }
+
     #[DataProvider('orderCurrencyDataProvider')]
     public function testCanRenderDependsOnOrderCurrency(?string $currencyCode, bool $expected): void
     {
@@ -414,7 +449,6 @@ class QrCodeRendererTest extends TestCase
         $configReader->method('getReferenceType')->willReturn($referenceType);
         $configReader->method('getPaymentReference')->willReturn($reference);
         $configReader->method('getCustomerHint')->willReturn($customerHint);
-        ;
         $configReader->method('getCharEncoding')->willReturn($charEncoding);
         $configReader->method('getServiceTag')->willReturn('BCD');
         $configReader->method('getVersion')->willReturn(002);

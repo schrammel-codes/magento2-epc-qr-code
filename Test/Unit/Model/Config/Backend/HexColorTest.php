@@ -37,6 +37,8 @@ class HexColorTest extends TestCase
             'Whitespace only' => ['value' => '   ', 'expected' => ''],
             'Uppercase color' => ['value' => '#1A2B3C', 'expected' => '#1A2B3C'],
             'Lowercase color with whitespaces' => ['value' => ' #1a2b3c ', 'expected' => '#1A2B3C'],
+            'Missing hash' => ['value' => '1A2B3C', 'expected' => '#1A2B3C'],
+            'Lowercase color with missing hash' => ['value' => '1a2b3c', 'expected' => '#1A2B3C'],
         ];
     }
 
@@ -56,8 +58,9 @@ class HexColorTest extends TestCase
     public static function invalidValueDataProvider(): array
     {
         return [
-            'Missing hash' => ['value' => '1A2B3C'],
             'Short notation' => ['value' => '#FFF'],
+            'Short notation with missing hash' => ['value' => 'FFF'],
+            'Double hash' => ['value' => '##1A2B3C'],
             'Too long' => ['value' => '#1A2B3C4D'],
             'Invalid characters' => ['value' => '#GGHHII'],
             'Color name' => ['value' => 'black'],

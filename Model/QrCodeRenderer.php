@@ -245,11 +245,14 @@ class QrCodeRenderer
         $storeId = $order->getStoreId() ? (int)$order->getStoreId() : null;
 
         try {
+            if (!$this->configReader->getBeneficiaryName($storeId)) {
+                EpcQrCodeException::configException(__('Beneficiary name is needed but not configured.'));
+            }
+
             $charEncoding = $this->configReader->getCharEncoding($storeId);
             $referenceType = $this->configReader->getReferenceType($storeId);
 
-            $result = $this->configReader->getBeneficiaryName($storeId) &&
-                $this->configReader->getIban($storeId) &&
+            $result = $this->configReader->getIban($storeId) &&
                 $referenceType && in_array($referenceType, PaymentReferenceType::ALLOWED_PAYMENT_REFERENCE_TYPES) &&
                 $charEncoding && in_array($charEncoding, range(1, 8)) &&
                 $this->configReader->getServiceTag() === 'BCD' &&

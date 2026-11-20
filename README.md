@@ -51,8 +51,8 @@ that your customers don't get a QR code rendered in Gmail clients, as the most w
 > When using colors for your QR code, make sure it is easy to scan. Some color combinations might make it hard to
 impossible for the banking apps to process the QR code.
 
-The QR code colors have to be given in the HEX format `#RRGGBB`. Leave them empty to use the default colors (black code
-on white background).
+The QR code colors have to be given in the HEX format `#RRGGBB` (a missing `#` is added when saving). Leave them empty to use
+the default colors (black code on white background).
 
 ### Configuration per website or store view
 `Beneficiary Name`, `IBAN` and `Payment Reference` (if used as payment reference type) are needed to render the QR code,
